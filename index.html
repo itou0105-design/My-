@@ -75,6 +75,39 @@
     .grid { grid-template-columns: repeat(7, 1fr); gap: 8px; }
   }
 
+  /* Today highlight - 当日の強調設定 */
+  .day-col.today {
+    border: 2.5px solid var(--accent); /* 枠線を太く強調 */
+    box-shadow: 0 4px 12px rgba(200, 119, 58, 0.15); /* 柔らかい影を追加 */
+    background: var(--accent-soft); /* 枠の中全体に色をつける */
+    transform: scale(1.02); /* ほんの少しだけ大きく表示 */
+    z-index: 10;
+  }
+
+  .day-col.today .day-header {
+    background: var(--accent); /* ヘッダーを濃い色に */
+    border-bottom: none;
+  }
+
+  .day-col.today .day-name, 
+  .day-col.today .day-date {
+    color: #fff; /* ヘッダーの文字を白抜きにして読みやすく */
+  }
+
+  .day-col.today .day-count {
+    background: #fff;
+    color: var(--accent);
+  }
+
+  /* 当日のタスク入力欄をさらに目立たせる */
+  .day-col.today .task-item {
+    background: rgba(255, 255, 255, 0.8); /* 半透明の白で浮き上がらせる */
+    border-color: rgba(200, 119, 58, 0.2);
+  }
+
+  .day-col.today .task-item.done {
+    background: var(--check-soft); /* 完了時はチェックの色を優先 */
+  }
   .day-col {
     background: var(--surface);
     border: 1px solid var(--border);
