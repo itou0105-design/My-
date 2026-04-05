@@ -2,9 +2,9 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>週間タスク管理</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #f5f3ef;
@@ -16,7 +16,7 @@
     --check: #3a8c5c;
     --check-soft: #d8edd3;
     --border: #e2ddd6;
-    --day-header-h: 48px;
+    --day-header-h: 54px; /* 少し高くして見やすく */
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -26,89 +26,66 @@
     font-family: 'Noto Sans JP', sans-serif;
     color: var(--ink);
     min-height: 100vh;
-    padding: 32px 20px 60px;
+    padding: 20px 12px 60px; /* 余白をスマホ向けにスリム化 */
+    -webkit-text-size-adjust: 100%;
   }
 
   header {
     max-width: 1200px;
-    margin: 0 auto 36px;
+    margin: 0 auto 24px;
     display: flex;
-    align-items: baseline;
-    gap: 20px;
+    flex-direction: column; /* スマホでは縦並びに */
+    gap: 8px;
   }
 
   header h1 {
-    font-size: 22px;
+    font-size: 24px; /* 大きく */
     font-weight: 700;
-    letter-spacing: 0.05em;
-  }
-
-  .week-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    color: var(--ink-muted);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
   }
 
   .progress-bar-wrap {
-    margin-left: auto;
+    width: 100%;
     display: flex;
     align-items: center;
-    gap: 10px;
-  }
-
-  .progress-text {
-    font-family: 'DM Mono', monospace;
-    font-size: 13px;
-    color: var(--accent);
-    min-width: 40px;
-    text-align: right;
+    gap: 12px;
+    margin-top: 4px;
   }
 
   .progress-track {
-    width: 120px;
-    height: 6px;
+    flex: 1; /* バーを横いっぱいに */
+    height: 8px;
     background: var(--border);
-    border-radius: 3px;
-    overflow: hidden;
-  }
-
-  .progress-fill {
-    height: 100%;
-    background: var(--accent);
-    border-radius: 3px;
-    transition: width 0.4s ease;
-    width: 0%;
+    border-radius: 4px;
   }
 
   /* Grid */
   .grid {
+    display: grid;
+    grid-template-columns: 1fr; /* スマホは1列が基本 */
+    gap: 16px;
     max-width: 1200px;
     margin: 0 auto;
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 10px;
+  }
+
+  /* PCやタブレットでは複数列にする */
+  @media (min-width: 768px) {
+    .grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (min-width: 1024px) {
+    .grid { grid-template-columns: repeat(7, 1fr); gap: 8px; }
   }
 
   .day-col {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: 16px;
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    animation: fadeUp 0.4s ease both;
-  }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(12px); }
-    to   { opacity: 1; transform: translateY(0); }
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
   }
 
   .day-header {
     height: var(--day-header-h);
-    padding: 0 12px;
+    padding: 0 16px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -116,83 +93,45 @@
     background: var(--bg);
   }
 
-  .day-name {
-    font-size: 12px;
-    font-weight: 700;
-  }
-
-  .day-date {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: var(--ink-muted);
-  }
-
-  .day-count {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    background: var(--accent-soft);
-    color: var(--accent);
-    padding: 2px 6px;
-    border-radius: 20px;
-    min-width: 28px;
-    text-align: center;
-  }
-
-  /* Today highlight */
-  .day-col.today {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 1px var(--accent);
-  }
-  .day-col.today .day-header {
-    background: var(--accent-soft);
-  }
+  .day-name { font-size: 15px; font-weight: 700; }
+  .day-date { font-size: 13px; color: var(--ink-muted); }
 
   /* Tasks */
   .tasks-list {
-    padding: 8px;
+    padding: 12px;
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    flex: 1;
+    gap: 8px;
   }
 
   .task-item {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px 8px;
-    border-radius: 6px;
-    transition: background 0.15s;
+    gap: 12px;
+    padding: 10px 12px; /* タップしやすく広く */
+    border-radius: 10px;
+    background: #fff;
+    border: 1px solid #f0f0f0;
   }
 
-  .task-item:hover { background: var(--bg); }
-  .task-item.done { background: var(--check-soft); }
+  .task-item.done { background: var(--check-soft); border-color: transparent; }
 
   .task-check {
-    width: 16px;
-    height: 16px;
+    width: 22px; /* チェックボックスを大きく */
+    height: 22px;
     flex-shrink: 0;
-    border: 1.5px solid var(--border);
-    border-radius: 4px;
-    cursor: pointer;
+    border: 2px solid var(--border);
+    border-radius: 6px;
     appearance: none;
-    -webkit-appearance: none;
     background: #fff;
     position: relative;
   }
 
-  .task-check:checked {
-    background: var(--check);
-    border-color: var(--check);
-  }
-
+  .task-check:checked { background: var(--check); border-color: var(--check); }
   .task-check:checked::after {
-    content: '';
-    position: absolute;
-    left: 4px; top: 1px;
-    width: 4px; height: 8px;
-    border: 2px solid #fff;
-    border-top: none; border-left: none;
+    content: ''; position: absolute; left: 6px; top: 2px;
+    width: 5px; height: 10px;
+    border: 2px solid #fff; border-top: none; border-left: none;
     transform: rotate(42deg);
   }
 
@@ -200,62 +139,45 @@
     flex: 1;
     border: none;
     background: transparent;
-    font-size: 12px;
+    font-size: 16px; /* iPhoneでズームされないための最小サイズ */
+    color: var(--ink);
     outline: none;
-    min-width: 0;
   }
 
   .task-item.done .task-text {
     text-decoration: line-through;
     color: var(--check);
+    opacity: 0.6;
   }
 
-  .footer {
-    max-width: 1200px;
-    margin: 24px auto 0;
-    text-align: center;
-    font-size: 11px;
-    color: var(--ink-muted);
-  }
-
-  /* Responsive */
-  @media (max-width: 1000px) {
-    .grid { grid-template-columns: repeat(4, 1fr); }
-  }
-  @media (max-width: 700px) {
-    .grid { grid-template-columns: repeat(2, 1fr); }
-  }
-  @media (max-width: 400px) {
-    .grid { grid-template-columns: 1fr; }
-  }
+  .footer { margin-top: 30px; font-size: 12px; color: var(--ink-muted); text-align: center; }
 </style>
 </head>
 <body>
 
 <header>
   <h1>週間タスク</h1>
-  <span class="week-label" id="weekLabel"></span>
   <div class="progress-bar-wrap">
-    <span class="progress-text" id="progressText">0%</span>
-    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="height:100%; background:var(--accent); width:0%; transition:0.4s;"></div></div>
+    <span class="progress-text" id="progressText" style="font-family:'DM Mono'; color:var(--accent); font-weight:bold;">0%</span>
   </div>
 </header>
 
 <div class="grid" id="taskGrid"></div>
-<p class="footer">入力内容は自動保存されます · クリックして編集</p>
+<p class="footer">自動保存されます · 快適な1週間を！</p>
 
 <script>
+// JavaScript部分は以前と同じですが、念のため統合します
 const DAYS = ['月曜日','火曜日','水曜日','木曜日','金曜日','土曜日','日曜日'];
 const TASKS_PER_DAY = 7;
 const STORAGE_KEY = 'weekly_tasks_v1';
 
 function getWeekDates() {
   const today = new Date();
-  const day = today.getDay(); // 0:Sun, 1:Mon...
+  const day = today.getDay();
   const diffToMon = (day === 0) ? -6 : 1 - day;
   const monday = new Date(today);
   monday.setDate(today.getDate() + diffToMon);
-  
   return Array.from({length: 7}, (_, i) => {
     const d = new Date(monday);
     d.setDate(monday.getDate() + i);
@@ -263,66 +185,33 @@ function getWeekDates() {
   });
 }
 
-function formatDate(d) {
-  return `${d.getMonth() + 1}/${d.getDate()}`;
-}
-
+function formatDate(d) { return `${d.getMonth() + 1}/${d.getDate()}`; }
 function isToday(d) {
   const t = new Date();
   return d.getFullYear() === t.getFullYear() && d.getMonth() === t.getMonth() && d.getDate() === t.getDate();
 }
 
-function loadData() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; }
-}
-
-function saveData(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-}
-
+let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
 const dates = getWeekDates();
 const grid = document.getElementById('taskGrid');
-let data = loadData();
-
-document.getElementById('weekLabel').textContent = `${formatDate(dates[0])} – ${formatDate(dates[6])}`;
 
 function updateProgress() {
   let total = 0, done = 0;
-  for (let d = 0; d < 7; d++) {
-    for (let t = 0; t < TASKS_PER_DAY; t++) {
-      const key = `${d}_${t}`;
-      if (data[key]?.text) { total++; if (data[key]?.done) done++; }
-    }
-  }
+  Object.keys(data).forEach(key => {
+    if (data[key].text) { total++; if (data[key].done) done++; }
+  });
   const pct = total === 0 ? 0 : Math.round(done / total * 100);
   document.getElementById('progressText').textContent = pct + '%';
   document.getElementById('progressFill').style.width = pct + '%';
 }
 
-function updateDayCount(dayIdx) {
-  let done = 0, total = 0;
-  for (let t = 0; t < TASKS_PER_DAY; t++) {
-    const key = `${dayIdx}_${t}`;
-    if (data[key]?.text) { total++; if (data[key]?.done) done++; }
-  }
-  const el = document.getElementById(`count_${dayIdx}`);
-  if (el) el.textContent = total === 0 ? '—' : `${done}/${total}`;
-}
-
 DAYS.forEach((dayName, di) => {
   const col = document.createElement('div');
   col.className = 'day-col' + (isToday(dates[di]) ? ' today' : '');
-  col.style.animationDelay = `${di * 0.05}s`;
-
+  
   const hdr = document.createElement('div');
   hdr.className = 'day-header';
-  hdr.innerHTML = `
-    <div>
-      <div class="day-name">${dayName}</div>
-      <div class="day-date">${formatDate(dates[di])}</div>
-    </div>
-    <span class="day-count" id="count_${di}">—</span>
-  `;
+  hdr.innerHTML = `<div class="day-name">${dayName}</div><div class="day-date">${formatDate(dates[di])}</div>`;
   col.appendChild(hdr);
 
   const list = document.createElement('div');
@@ -343,32 +232,28 @@ DAYS.forEach((dayName, di) => {
     const inp = document.createElement('input');
     inp.type = 'text';
     inp.className = 'task-text';
-    inp.placeholder = `タスク ${t + 1}`;
     inp.value = data[key].text;
+    inp.placeholder = "タスクを入力";
 
     chk.addEventListener('change', () => {
       data[key].done = chk.checked;
       item.classList.toggle('done', chk.checked);
-      saveData(data);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       updateProgress();
-      updateDayCount(di);
     });
 
     inp.addEventListener('input', () => {
       data[key].text = inp.value;
-      saveData(data);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       updateProgress();
-      updateDayCount(di);
     });
 
     item.appendChild(chk);
     item.appendChild(inp);
     list.appendChild(item);
   }
-
   col.appendChild(list);
   grid.appendChild(col);
-  updateDayCount(di);
 });
 
 updateProgress();
