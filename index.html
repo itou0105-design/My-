@@ -208,4 +208,46 @@ DAYS.forEach((dayName, di) => {
   const list = document.createElement('div');
   list.className = 'tasks-list';
 
-  for (let t = 0; t < TASKS_PER_
+  for (let t = 0; t < TASKS_PER_DAY; t++) {
+    const key = `${di}_${t}`;
+    if (!data[key]) data[key] = { text: '', done: false };
+
+    const item = document.createElement('div');
+    item.className = 'task-item' + (data[key].done ? ' done' : '');
+    
+    const chk = document.createElement('input');
+    chk.type = 'checkbox';
+    chk.className = 'task-check';
+    chk.checked = data[key].done;
+
+    const inp = document.createElement('input');
+    inp.type = 'text';
+    inp.className = 'task-text';
+    inp.value = data[key].text;
+    inp.placeholder = "タスクを入力";
+
+    chk.addEventListener('change', () => {
+      data[key].done = chk.checked;
+      item.classList.toggle('done', chk.checked);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      updateProgress();
+    });
+
+    inp.addEventListener('input', () => {
+      data[key].text = inp.value;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      updateProgress();
+    });
+
+    item.appendChild(chk);
+    item.appendChild(inp);
+    list.appendChild(item);
+  }
+  col.appendChild(list);
+  grid.appendChild(col);
+});
+
+updateProgress();
+</script>
+</body>
+</html>
