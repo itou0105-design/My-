@@ -11,12 +11,11 @@
     --surface: #fdfcfa;
     --ink: #1a1814;
     --ink-muted: #7a756e;
-    --accent: #c8773a;
-    --accent-soft: #f0e6d8;
+    --accent: #c8773a; /* オレンジ系 */
+    --accent-soft: #fdf2e9;
     --check: #3a8c5c;
     --check-soft: #d8edd3;
     --border: #e2ddd6;
-    --day-header-h: 54px; /* 少し高くして見やすく */
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -25,165 +24,123 @@
     background: var(--bg);
     font-family: 'Noto Sans JP', sans-serif;
     color: var(--ink);
-    min-height: 100vh;
-    padding: 20px 12px 60px; /* 余白をスマホ向けにスリム化 */
-    -webkit-text-size-adjust: 100%;
+    padding: 20px 12px 60px;
   }
 
   header {
     max-width: 1200px;
-    margin: 0 auto 24px;
-    display: flex;
-    flex-direction: column; /* スマホでは縦並びに */
-    gap: 8px;
+    margin: 0 auto 20px;
   }
 
-  header h1 {
-    font-size: 24px; /* 大きく */
-    font-weight: 700;
-  }
+  header h1 { font-size: 24px; margin-bottom: 8px; }
 
   .progress-bar-wrap {
-    width: 100%;
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-top: 4px;
+    background: var(--surface);
+    padding: 10px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
   }
 
   .progress-track {
-    flex: 1; /* バーを横いっぱいに */
+    flex: 1;
     height: 8px;
     background: var(--border);
     border-radius: 4px;
+    overflow: hidden;
   }
 
-  /* Grid */
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.4s ease;
+  }
+
   .grid {
     display: grid;
-    grid-template-columns: 1fr; /* スマホは1列が基本 */
+    grid-template-columns: 1fr;
     gap: 16px;
-    max-width: 1200px;
-    margin: 0 auto;
+    margin-top: 20px;
   }
 
-  /* PCやタブレットでは複数列にする */
-  @media (min-width: 768px) {
-    .grid { grid-template-columns: repeat(2, 1fr); }
-  }
-  @media (min-width: 1024px) {
-    .grid { grid-template-columns: repeat(7, 1fr); gap: 8px; }
-  }
+  @media (min-width: 768px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1024px) { .grid { grid-template-columns: repeat(7, 1fr); gap: 8px; } }
 
-  /* Today highlight - 当日の強調設定 */
-  .day-col.today {
-    border: 2.5px solid var(--accent); /* 枠線を太く強調 */
-    box-shadow: 0 4px 12px rgba(200, 119, 58, 0.15); /* 柔らかい影を追加 */
-    background: var(--accent-soft); /* 枠の中全体に色をつける */
-    transform: scale(1.02); /* ほんの少しだけ大きく表示 */
-    z-index: 10;
-  }
-
-  .day-col.today .day-header {
-    background: var(--accent); /* ヘッダーを濃い色に */
-    border-bottom: none;
-  }
-
-  .day-col.today .day-name, 
-  .day-col.today .day-date {
-    color: #fff; /* ヘッダーの文字を白抜きにして読みやすく */
-  }
-
-  .day-col.today .day-count {
-    background: #fff;
-    color: var(--accent);
-  }
-
-  /* 当日のタスク入力欄をさらに目立たせる */
-  .day-col.today .task-item {
-    background: rgba(255, 255, 255, 0.8); /* 半透明の白で浮き上がらせる */
-    border-color: rgba(200, 119, 58, 0.2);
-  }
-
-  .day-col.today .task-item.done {
-    background: var(--check-soft); /* 完了時はチェックの色を優先 */
-  }
   .day-col {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    transition: all 0.3s ease;
+  }
+
+  /* ★【重要】今日の枠のスタイル ★ */
+  .day-col.today {
+    border: 3px solid var(--accent) !important; /* 枠を太く */
+    background: var(--accent-soft) !important; /* 背景を薄オレンジに */
+    box-shadow: 0 8px 20px rgba(200, 119, 58, 0.2);
+    transform: translateY(-4px); /* 少し上に浮かせる */
   }
 
   .day-header {
-    height: var(--day-header-h);
-    padding: 0 16px;
+    padding: 12px 16px;
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
     border-bottom: 1px solid var(--border);
-    background: var(--bg);
+    background: rgba(0,0,0,0.02);
   }
 
-  .day-name { font-size: 15px; font-weight: 700; }
-  .day-date { font-size: 13px; color: var(--ink-muted); }
-
-  /* Tasks */
-  .tasks-list {
-    padding: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+  /* 今日のヘッダーだけ色を変える */
+  .day-col.today .day-header {
+    background: var(--accent);
+    color: #fff;
   }
+
+  .day-name { font-weight: 700; font-size: 15px; }
+  .day-date { font-size: 12px; opacity: 0.8; }
+
+  .tasks-list { padding: 12px; display: flex; flex-direction: column; gap: 8px; }
 
   .task-item {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 10px 12px; /* タップしやすく広く */
-    border-radius: 10px;
+    gap: 10px;
+    padding: 10px;
     background: #fff;
-    border: 1px solid #f0f0f0;
+    border-radius: 10px;
+    border: 1px solid #eee;
   }
 
   .task-item.done { background: var(--check-soft); border-color: transparent; }
 
   .task-check {
-    width: 22px; /* チェックボックスを大きく */
-    height: 22px;
-    flex-shrink: 0;
+    width: 20px; height: 20px;
     border: 2px solid var(--border);
     border-radius: 6px;
     appearance: none;
     background: #fff;
     position: relative;
+    flex-shrink: 0;
   }
 
   .task-check:checked { background: var(--check); border-color: var(--check); }
   .task-check:checked::after {
     content: ''; position: absolute; left: 6px; top: 2px;
-    width: 5px; height: 10px;
-    border: 2px solid #fff; border-top: none; border-left: none;
-    transform: rotate(42deg);
+    width: 4px; height: 8px; border: 2px solid #fff;
+    border-top: none; border-left: none; transform: rotate(45deg);
   }
 
   .task-text {
-    flex: 1;
-    border: none;
-    background: transparent;
-    font-size: 16px; /* iPhoneでズームされないための最小サイズ */
-    color: var(--ink);
-    outline: none;
+    flex: 1; border: none; background: transparent;
+    font-size: 16px; outline: none; color: var(--ink);
   }
 
-  .task-item.done .task-text {
-    text-decoration: line-through;
-    color: var(--check);
-    opacity: 0.6;
-  }
+  .task-item.done .task-text { text-decoration: line-through; opacity: 0.5; }
 
-  .footer { margin-top: 30px; font-size: 12px; color: var(--ink-muted); text-align: center; }
+  .footer { margin-top: 40px; text-align: center; font-size: 12px; color: var(--ink-muted); }
 </style>
 </head>
 <body>
@@ -191,16 +148,15 @@
 <header>
   <h1>週間タスク</h1>
   <div class="progress-bar-wrap">
-    <div class="progress-track"><div class="progress-fill" id="progressFill" style="height:100%; background:var(--accent); width:0%; transition:0.4s;"></div></div>
-    <span class="progress-text" id="progressText" style="font-family:'DM Mono'; color:var(--accent); font-weight:bold;">0%</span>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%;"></div></div>
+    <span id="progressText" style="font-family:'DM Mono'; font-weight:bold; color:var(--accent);">0%</span>
   </div>
 </header>
 
 <div class="grid" id="taskGrid"></div>
-<p class="footer">自動保存されます · 快適な1週間を！</p>
+<p class="footer">自動保存されます。今日も良い一日を！</p>
 
 <script>
-// JavaScript部分は以前と同じですが、念のため統合します
 const DAYS = ['月曜日','火曜日','水曜日','木曜日','金曜日','土曜日','日曜日'];
 const TASKS_PER_DAY = 7;
 const STORAGE_KEY = 'weekly_tasks_v1';
@@ -240,56 +196,16 @@ function updateProgress() {
 
 DAYS.forEach((dayName, di) => {
   const col = document.createElement('div');
-  col.className = 'day-col' + (isToday(dates[di]) ? ' today' : '');
+  // ここで isToday を判定してクラスを付与
+  const isTargetToday = isToday(dates[di]);
+  col.className = 'day-col' + (isTargetToday ? ' today' : '');
   
   const hdr = document.createElement('div');
   hdr.className = 'day-header';
-  hdr.innerHTML = `<div class="day-name">${dayName}</div><div class="day-date">${formatDate(dates[di])}</div>`;
+  hdr.innerHTML = `<div><div class="day-name">${dayName}</div><div class="day-date">${formatDate(dates[di])}</div></div>`;
   col.appendChild(hdr);
 
   const list = document.createElement('div');
   list.className = 'tasks-list';
 
-  for (let t = 0; t < TASKS_PER_DAY; t++) {
-    const key = `${di}_${t}`;
-    if (!data[key]) data[key] = { text: '', done: false };
-
-    const item = document.createElement('div');
-    item.className = 'task-item' + (data[key].done ? ' done' : '');
-    
-    const chk = document.createElement('input');
-    chk.type = 'checkbox';
-    chk.className = 'task-check';
-    chk.checked = data[key].done;
-
-    const inp = document.createElement('input');
-    inp.type = 'text';
-    inp.className = 'task-text';
-    inp.value = data[key].text;
-    inp.placeholder = "タスクを入力";
-
-    chk.addEventListener('change', () => {
-      data[key].done = chk.checked;
-      item.classList.toggle('done', chk.checked);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      updateProgress();
-    });
-
-    inp.addEventListener('input', () => {
-      data[key].text = inp.value;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      updateProgress();
-    });
-
-    item.appendChild(chk);
-    item.appendChild(inp);
-    list.appendChild(item);
-  }
-  col.appendChild(list);
-  grid.appendChild(col);
-});
-
-updateProgress();
-</script>
-</body>
-</html>
+  for (let t = 0; t < TASKS_PER_
