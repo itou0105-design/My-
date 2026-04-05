@@ -11,7 +11,7 @@
     --surface: #fdfcfa;
     --ink: #1a1814;
     --ink-muted: #7a756e;
-    --accent: #c8773a; /* オレンジ系 */
+    --accent: #c8773a;
     --accent-soft: #fdf2e9;
     --check: #3a8c5c;
     --check-soft: #d8edd3;
@@ -25,13 +25,10 @@
     font-family: 'Noto Sans JP', sans-serif;
     color: var(--ink);
     padding: 20px 12px 60px;
+    -webkit-text-size-adjust: 100%;
   }
 
-  header {
-    max-width: 1200px;
-    margin: 0 auto 20px;
-  }
-
+  header { max-width: 1200px; margin: 0 auto 20px; }
   header h1 { font-size: 24px; margin-bottom: 8px; }
 
   .progress-bar-wrap {
@@ -52,17 +49,16 @@
     overflow: hidden;
   }
 
-  .progress-fill {
-    height: 100%;
-    background: var(--accent);
-    transition: width 0.4s ease;
-  }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.4s; }
 
   .grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 16px;
     margin-top: 20px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   @media (min-width: 768px) { .grid { grid-template-columns: repeat(2, 1fr); } }
@@ -73,15 +69,12 @@
     border: 1px solid var(--border);
     border-radius: 16px;
     overflow: hidden;
-    transition: all 0.3s ease;
   }
 
-  /* ★【重要】今日の枠のスタイル ★ */
   .day-col.today {
-    border: 3px solid var(--accent) !important; /* 枠を太く */
-    background: var(--accent-soft) !important; /* 背景を薄オレンジに */
-    box-shadow: 0 8px 20px rgba(200, 119, 58, 0.2);
-    transform: translateY(-4px); /* 少し上に浮かせる */
+    border: 3px solid var(--accent) !important;
+    background: var(--accent-soft) !important;
+    box-shadow: 0 8px 20px rgba(200, 119, 58, 0.15);
   }
 
   .day-header {
@@ -93,11 +86,7 @@
     background: rgba(0,0,0,0.02);
   }
 
-  /* 今日のヘッダーだけ色を変える */
-  .day-col.today .day-header {
-    background: var(--accent);
-    color: #fff;
-  }
+  .day-col.today .day-header { background: var(--accent); color: #fff; border: none; }
 
   .day-name { font-weight: 700; font-size: 15px; }
   .day-date { font-size: 12px; opacity: 0.8; }
@@ -163,7 +152,7 @@ const STORAGE_KEY = 'weekly_tasks_v1';
 
 function getWeekDates() {
   const today = new Date();
-  const day = today.getDay();
+  const day = today.getDay(); // 0=Sun, 1=Mon...
   const diffToMon = (day === 0) ? -6 : 1 - day;
   const monday = new Date(today);
   monday.setDate(today.getDate() + diffToMon);
@@ -174,7 +163,11 @@ function getWeekDates() {
   });
 }
 
-function formatDate(d) { return `${d.getMonth() + 1}/${d.getDate()}`; }
+function formatDate(d) {
+  if(!d) return "";
+  return `${d.getMonth() + 1}/${d.getDate()}`;
+}
+
 function isToday(d) {
   const t = new Date();
   return d.getFullYear() === t.getFullYear() && d.getMonth() === t.getMonth() && d.getDate() === t.getDate();
@@ -191,61 +184,62 @@ function updateProgress() {
   });
   const pct = total === 0 ? 0 : Math.round(done / total * 100);
   document.getElementById('progressText').textContent = pct + '%';
-  document.getElementById('progressFill').style.width = pct + '%';
+  const fill = document.getElementById('progressFill');
+  if(fill) fill.style.width = pct + '%';
 }
 
-DAYS.forEach((dayName, di) => {
-  const col = document.createElement('div');
-  // ここで isToday を判定してクラスを付与
-  const isTargetToday = isToday(dates[di]);
-  col.className = 'day-col' + (isTargetToday ? ' today' : '');
-  
-  const hdr = document.createElement('div');
-  hdr.className = 'day-header';
-  hdr.innerHTML = `<div><div class="day-name">${dayName}</div><div class="day-date">${formatDate(dates[di])}</div></div>`;
-  col.appendChild(hdr);
-
-  const list = document.createElement('div');
-  list.className = 'tasks-list';
-
-  for (let t = 0; t < TASKS_PER_DAY; t++) {
-    const key = `${di}_${t}`;
-    if (!data[key]) data[key] = { text: '', done: false };
-
-    const item = document.createElement('div');
-    item.className = 'task-item' + (data[key].done ? ' done' : '');
+if (grid) {
+  DAYS.forEach((dayName, di) => {
+    const col = document.createElement('div');
+    col.className = 'day-col' + (isToday(dates[di]) ? ' today' : '');
     
-    const chk = document.createElement('input');
-    chk.type = 'checkbox';
-    chk.className = 'task-check';
-    chk.checked = data[key].done;
+    const hdr = document.createElement('div');
+    hdr.className = 'day-header';
+    hdr.innerHTML = `<div><div class="day-name">${dayName}</div><div class="day-date">${formatDate(dates[di])}</div></div>`;
+    col.appendChild(hdr);
 
-    const inp = document.createElement('input');
-    inp.type = 'text';
-    inp.className = 'task-text';
-    inp.value = data[key].text;
-    inp.placeholder = "タスクを入力";
+    const list = document.createElement('div');
+    list.className = 'tasks-list';
 
-    chk.addEventListener('change', () => {
-      data[key].done = chk.checked;
-      item.classList.toggle('done', chk.checked);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      updateProgress();
-    });
+    for (let t = 0; t < TASKS_PER_DAY; t++) {
+      const key = `${di}_${t}`;
+      if (!data[key]) data[key] = { text: '', done: false };
 
-    inp.addEventListener('input', () => {
-      data[key].text = inp.value;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      updateProgress();
-    });
+      const item = document.createElement('div');
+      item.className = 'task-item' + (data[key].done ? ' done' : '');
+      
+      const chk = document.createElement('input');
+      chk.type = 'checkbox';
+      chk.className = 'task-check';
+      chk.checked = data[key].done;
 
-    item.appendChild(chk);
-    item.appendChild(inp);
-    list.appendChild(item);
-  }
-  col.appendChild(list);
-  grid.appendChild(col);
-});
+      const inp = document.createElement('input');
+      inp.type = 'text';
+      inp.className = 'task-text';
+      inp.value = data[key].text || "";
+      inp.placeholder = "タスクを入力";
+
+      chk.addEventListener('change', () => {
+        data[key].done = chk.checked;
+        item.classList.toggle('done', chk.checked);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        updateProgress();
+      });
+
+      inp.addEventListener('input', () => {
+        data[key].text = inp.value;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        updateProgress();
+      });
+
+      item.appendChild(chk);
+      item.appendChild(inp);
+      list.appendChild(item);
+    }
+    col.appendChild(list);
+    grid.appendChild(col);
+  });
+}
 
 updateProgress();
 </script>
